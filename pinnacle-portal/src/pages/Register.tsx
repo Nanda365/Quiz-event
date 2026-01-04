@@ -170,7 +170,7 @@ export const Register = ({ onRegister, isLoading }: RegisterProps) => {
                     disabled={isLoading}
                     className="bg-background focus:ring-primary"
                   />
-                  {fieldErrors.college && <p className className="text-xs text-destructive">{fieldErrors.college}</p>}
+                  {fieldErrors.college && <p className="text-xs text-destructive">{fieldErrors.college}</p>}
                 </div>
 
                 <div className="space-y-2">
