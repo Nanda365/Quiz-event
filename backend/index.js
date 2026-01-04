@@ -35,8 +35,8 @@ connectDB().then(async () => {
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:8080', // Your frontend origin
-  credentials: true,
+  origin: true,
+  credentials: true
 }));
 app.use(express.json());
 app.use(cookieParser());
