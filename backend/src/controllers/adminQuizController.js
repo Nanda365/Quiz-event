@@ -291,3 +291,22 @@ exports.getQuizResults = async (req, res) => {
     res.status(500).json({ message: 'Server error', error });
   }
 };
+
+// @desc    Delete a student's quiz result
+// @route   DELETE /api/admin/results/:resultId
+// @access  Private/Admin
+exports.deleteResult = async (req, res) => {
+  try {
+    const result = await Result.findById(req.params.resultId);
+
+    if (!result) {
+      return res.status(404).json({ message: 'Result not found' });
+    }
+
+    await result.deleteOne();
+    res.json({ message: 'Result removed successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
+

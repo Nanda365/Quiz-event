@@ -11,6 +11,7 @@ const {
   updateQuestionInQuiz,
   deleteQuestionFromQuiz,
   getQuizResults, // Import getQuizResults
+  deleteResult, // Import deleteResult
 } = require('../controllers/adminQuizController');
 const { protect, authorize } = require('../middlewares/authMiddleware'); // Updated import
 // All routes in this file are protected and admin-only
@@ -35,6 +36,10 @@ router.route('/:quizId/questions/:questionId')
 
 router.route('/:quizId/results') // New route for quiz results
   .get(getQuizResults);
+
+// New route to delete a specific result
+router.route('/results/:resultId')
+  .delete(deleteResult);
 
 
 module.exports = router;

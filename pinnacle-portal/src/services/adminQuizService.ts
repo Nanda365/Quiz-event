@@ -42,6 +42,10 @@ const adminQuizService = {
   getQuizResults: (quizId: string) => { // New method to fetch quiz results
     return api.get(`${API_BASE_PATH}/${quizId}/results`);
   },
+
+  deleteResult: (resultId: string) => {
+    return api.delete(`/admin/quizzes/results/${resultId}`);
+  },
 };
 
 export default adminQuizService;

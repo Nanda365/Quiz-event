@@ -1,27 +1,35 @@
 const Quiz = require('../models/Quiz');
 const Result = require('../models/Result');
-// const redisClient = require('../config/redis');
-// const { promisify } = require('util');
-
-// const getAsync = promisify(redisClient.get).bind(redisClient);
-// const setAsync = promisify(redisClient.set).bind(redisClient);
+const redisClient = require('../config/redis');
 
 exports.getQuiz = async (req, res) => {
   try {
-    const quizAccessCode = req.params.id; // Renamed for clarity
-    console.log(`Attempting to find quiz with accessCode: ${quizAccessCode} and status: 'published'`);
-    
-    const quiz = await Quiz.findOne({ accessCode: quizAccessCode, status: 'published' }).populate('questions');
-    console.log(`Query result for accessCode ${quizAccessCode}: ${quiz ? 'Quiz found' : 'Quiz not found'}`);
+    const quizAccessCode = req.params.id;
+    const cachedQuiz = await redisClient.get(`quiz:${quizAccessCode}`);
+
+    if (cachedQuiz) {
+      console.log(`Cache hit for quiz accessCode: ${quizAccessCode}`);
+      return res.json(cachedQuiz);
+    }
+
+    console.log(`Cache miss for quiz accessCode: ${quizAccessCode}. Fetching from DB.`);
+    const quiz = await Quiz.findOne({ accessCode: quizAccessCode, status: 'published' }).populate('questions').lean();
 
     if (!quiz) {
       return res.status(404).json({ message: 'Quiz not found or not published' });
     }
 
+    // Cache the quiz for 1 hour
+    const quizToCache = JSON.stringify(quiz);
+    await redisClient.set(`quiz:${quizAccessCode}`, quizToCache, {
+      EX: 3600, // 1 hour
+    });
+    console.log(`Quiz with accessCode: ${quizAccessCode} cached.`);
+
     res.json(quiz);
   } catch (error) {
-    console.error("Error in getQuiz:", error); // Enhanced error logging
-    res.status(500).json({ message: 'Server error', error: error.message }); // Return error message
+    console.error("Error in getQuiz:", error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 

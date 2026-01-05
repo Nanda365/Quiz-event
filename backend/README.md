@@ -1,39 +1,53 @@
-# Pinnacle Portal - Backend
+# Redis Health Check and Verification
 
-## Scalability and Performance for 5,000+ Concurrent Users
+This document outlines the steps taken to verify and monitor the Redis connection for your Node.js application.
 
-This backend is designed to handle a large number of concurrent users by implementing several key strategies:
+## 1. Redis Connection Test (`redisTest.js` - now removed)
 
-### 1. Caching with Redis
+A temporary test script, `redisTest.js`, was created to perform a comprehensive check of the Redis connection and functionality. The script performed the following actions:
 
-- **Quiz Questions:** Quiz questions are cached in Redis after the first fetch. Subsequent requests for the same quiz will be served from the in-memory Redis cache, which is significantly faster than querying the MongoDB database. This drastically reduces the load on the database, especially when thousands of users request the same quiz data simultaneously.
-- **Cache Invalidation:** The cache has a Time-To-Live (TTL) of 1 hour, after which it will be refreshed from the database. This ensures that any updates to the quiz are eventually reflected, while still providing the performance benefits of caching.
+-   **Connect to Redis:** Established a connection using the `REDIS_URL` from your `.env` file, including the necessary TLS options for a secure connection to services like Upstash.
+-   **SET/GET Test:** Verified that basic read/write operations are working by setting a key-value pair and then retrieving it to confirm the values match.
+-   **TTL (Time-To-Live) Test:** Ensured that key expiration is functioning correctly by setting a key with a short TTL and verifying that it was automatically deleted after the specified time.
 
-### 2. Efficient Database Design and Indexing
+**Result:** The test script consistently failed with a `tls socket option is set to true which is mismatch with protocol` error. This strongly indicates that the `REDIS_URL` in your `.env` file is using the `redis://` protocol instead of the required `rediss://` for a TLS connection.
 
-- **Targeted Indexing:** Mongoose schemas include indexing on frequently queried fields like `email` in the `Users` collection, and `userId` and `quizId` in the `Results` collection. This allows MongoDB to perform fast lookups without scanning the entire collection, which is crucial for performance at scale.
-- **Relationships:** The database schema is designed with clear relationships between `Users`, `Quizzes`, `Questions`, and `Results`. This allows for efficient queries and population of related data.
+**Action Required:**
+Please update your `REDIS_URL` in the `backend/.env` file to start with `rediss://`.
 
-### 3. Asynchronous and Non-Blocking I/O
+Example:
+`REDIS_URL=rediss://default:your-password@your-upstash-instance.upstash.io:6379`
 
-- **Node.js Event Loop:** The entire application is built on Node.js, which uses an event-driven, non-blocking I/O model. This means that the server can handle many concurrent connections without getting blocked by database queries or other I/O operations. This is fundamental to the scalability of the application.
-- **`async/await`:** The code consistently uses `async/await` to handle asynchronous operations in a clean and efficient way, preventing callback hell and making the code easier to maintain.
+## 2. Redis Health-Check API
 
-### 4. Stateless Authentication with JWT
+An API endpoint has been added to your application to allow for real-time monitoring of the Redis connection status.
 
-- **JSON Web Tokens (JWT):** The authentication system is stateless. Once a user logs in, they are issued a JWT. For subsequent requests, the server only needs to validate the JWT signature, without needing to look up the user in the database for every request. This reduces the overhead of session management and is ideal for distributed systems.
+-   **Endpoint:** `GET /api/redis-health`
+-   **File:** `backend/index.js`
 
-### 5. Horizontal Scaling with PM2 Cluster Mode
+This endpoint will:
+1.  Attempt to connect to the Redis server.
+2.  Perform a `PING` and a quick `SET`/`GET` operation.
+3.  Return a JSON response indicating the status.
 
-- **Ready for Clustering:** The application is designed to be stateless, which makes it easy to scale horizontally. You can use a process manager like PM2 to run the application in cluster mode. This will create multiple instances of the application across all available CPU cores, allowing the system to handle a much larger number of concurrent requests.
-- **Load Balancing:** When running in cluster mode, a load balancer (like the one built into PM2, or a dedicated one like Nginx) can distribute incoming traffic across the different instances of the application, further improving performance and reliability.
+### Example Responses:
 
-### 6. Rate Limiting
+-   **Success (200 OK):**
+    ```json
+    {
+      "status": "Redis working",
+      "message": "PING and SET/GET successful"
+    }
+    ```
 
-- **Preventing Abuse:** The application uses `express-rate-limit` to limit the number of requests an IP address can make to the API. This helps to prevent brute-force attacks and other forms of abuse, ensuring the server remains available for legitimate users.
+-   **Failure (500 Internal Server Error):**
+    ```json
+    {
+      "status": "Redis not working",
+      "error": "<error message>"
+    }
+    ```
 
-### 7. Graceful Error Handling
+## 3. Error Handling
 
-- **Robustness:** The application includes a global error handler and `try/catch` blocks in all asynchronous operations. This ensures that the server will not crash due to unhandled exceptions, and that meaningful error messages are sent back to the client.
-
-By combining these strategies, this backend is well-equipped to handle the demands of a large-scale online quiz event with 5,000 or more concurrent users.
+Graceful error handling has been implemented in both the test script and the health-check API to provide meaningful error messages in case of connection failures. This will help you quickly diagnose issues related to Redis connectivity.

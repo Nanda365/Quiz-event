@@ -1,11 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-<<<<<<< HEAD
   baseURL: 'http://localhost:5000/api',
-=======
-  baseURL: 'https://quiz-event-backend.onrender.com/api',
->>>>>>> 0af6f3567610ed8202792bc63ef5b2e49784595d
   withCredentials: true,
 });
 
