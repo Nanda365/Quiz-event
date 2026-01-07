@@ -21,49 +21,81 @@ export const useQuiz = (quizId: string) => { // Accept quizId as a parameter
   const [isAlreadySubmitted, setIsAlreadySubmitted] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch questions and check for existing result when quizId changes
+  const fetchQuizData = useCallback(async () => {
+    if (!quizId) return;
+
+    setIsLoadingQuestions(true);
+    setIsCheckingResult(true);
+    setErrorFetchingQuestions(null);
+
+    try {
+      await getExistingResult(quizId);
+      setIsAlreadySubmitted(true);
+    } catch (error) {
+      setIsAlreadySubmitted(false);
+    } finally {
+      setIsCheckingResult(false);
+    }
+
+    try {
+      const response = await api.get(`/quiz/${quizId}?_time=${new Date().getTime()}`);
+      const newQuestions = response.data.questions;
+      const newDuration = response.data.duration;
+      
+      setQuestions(newQuestions);
+      setQuizDuration(newDuration);
+
+      // Use a callback with the state setter to ensure we have the latest `isStarted` value
+      // and avoid depending on it in the useCallback.
+      setQuizState(prev => {
+        if (!prev.isSubmitted) { // Only update time if the quiz is not submitted
+          return { ...prev, timeRemaining: newDuration * 60 };
+        }
+        return prev;
+      });
+
+    } catch (error: any) {
+      setErrorFetchingQuestions(error.response?.data?.message || "Failed to load quiz questions. Please try again.");
+    } finally {
+      setIsLoadingQuestions(false);
+    }
+  }, [quizId]); // Removed dependencies on `isStarted` and `questions.length`
+
+  // Fetch questions on initial load and when quizId changes
   useEffect(() => {
-    const fetchQuizData = async () => {
-      if (!quizId) return;
-
-      setIsLoadingQuestions(true);
-      setIsCheckingResult(true);
-      setErrorFetchingQuestions(null);
-
-      try {
-        // Check for existing result first
-        await getExistingResult(quizId);
-        setIsAlreadySubmitted(true); // If the request succeeds, a result exists
-      } catch (error) {
-        // A 404 error is expected if no result exists, so we can proceed
-        setIsAlreadySubmitted(false);
-      } finally {
-        setIsCheckingResult(false);
-      }
-
-      try {
-        const response = await api.get(`/quiz/${quizId}`);
-        setQuestions(response.data.questions);
-        setQuizDuration(response.data.duration); // Set the fetched quiz duration
-        setQuizState(prev => ({ ...prev, timeRemaining: response.data.duration * 60 })); // Initialize timeRemaining
-      } catch (error: any) { 
-        setErrorFetchingQuestions(error.response?.data?.message || "Failed to load quiz questions. Please try again.");
-      } finally {
-        setIsLoadingQuestions(false);
-      }
-    };
     fetchQuizData();
-  }, [quizId]);
+  }, [fetchQuizData]);
+
+  // Refetch data when the window/tab gets focus
+  useEffect(() => {
+    const handleFocus = () => {
+      // We can't use `isStarted` directly here as it would be stale.
+      // Instead, we check the quiz state. A quiz is "started" if time is running
+      // or it is submitted. We only want to refetch if it's pristine.
+      setQuizState(currentQuizState => {
+        if (currentQuizState.timeRemaining === quizDuration * 60 && !currentQuizState.isSubmitted) {
+          fetchQuizData();
+        }
+        return currentQuizState;
+      });
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [fetchQuizData, quizDuration]);
 
   const startQuiz = useCallback(() => {
     setIsStarted(true);
-    setQuizState({
+    setQuizState(prev => ({
+      ...prev,
       currentQuestion: 0,
       answers: {},
       markedForLater: {},
-      timeRemaining: quizDuration * 60, // Use fetched quizDuration
+      timeRemaining: quizDuration * 60,
       isSubmitted: false
-    });
+    }));
   }, [quizDuration]);
 
   const selectAnswer = useCallback((questionId: string, answer: string) => {

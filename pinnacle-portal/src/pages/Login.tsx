@@ -8,6 +8,8 @@ import { Loader2 } from "lucide-react";
 import { z } from "zod";
 import logo from '@/assests/Login page.png';
 
+import { Eye, EyeOff } from "lucide-react";
+
 const loginSchema = z.object({
   email: z.string().trim().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters")
@@ -24,6 +26,7 @@ export const Login = ({ onLogin, isLoading }: LoginProps) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -98,15 +101,27 @@ export const Login = ({ onLogin, isLoading }: LoginProps) => {
 
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    disabled={isLoading}
-                    className="bg-background focus:ring-primary"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      disabled={isLoading}
+                      className="bg-background focus:ring-primary pr-10"
+                    />
+                    <div
+                      className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400" />
+                      )}
+                    </div>
+                  </div>
                   {fieldErrors.password && (
                     <p className="text-xs text-destructive">{fieldErrors.password}</p>
                   )}

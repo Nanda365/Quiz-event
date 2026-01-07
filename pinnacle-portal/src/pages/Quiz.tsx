@@ -112,9 +112,6 @@ export const Quiz = ({ user }: QuizProps) => {
 
   // Results Screen
   if (quizState.isSubmitted) {
-    const { correct, total } = calculateScore();
-    const percentage = Math.round((correct / total) * 100);
-
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <div className="w-full max-w-md rounded-xl border bg-card p-8 text-center shadow-sm">
@@ -125,22 +122,9 @@ export const Quiz = ({ user }: QuizProps) => {
           </div>
           
           <h1 className="mb-2 text-2xl font-bold text-primary">Quiz Completed!</h1>
-          <p className="mb-8 text-text-secondary">Great effort, {user.name.split(" ")[0]}!</p>
+          <p className="mb-8 text-text-secondary">Thank you for completing the quiz, {user.name.split(" ")[0]}!</p>
           
-          <div className="mb-8 rounded-lg bg-primary/10 p-6">
-            <div className="mb-2 text-5xl font-bold text-primary">
-              {correct}/{total}
-            </div>
-            <p className="text-text-secondary">
-              You scored {percentage}%
-            </p>
-          </div>
-
           <div className="flex flex-col gap-3">
-            <Button onClick={resetQuiz} variant="outline" className="border-primary text-primary hover:bg-primary/10">
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Try Again
-            </Button>
             <Button onClick={() => navigate("/dashboard")} className="bg-primary text-primary-foreground hover:bg-primary/90">
               Back to Dashboard
             </Button>

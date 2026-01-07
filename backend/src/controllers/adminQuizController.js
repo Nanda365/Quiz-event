@@ -1,6 +1,7 @@
 const Quiz = require('../models/Quiz');
 const Question = require('../models/Question');
 const Result = require('../models/Result');
+const redisClient = require('../config/redis');
 
 // Helper function to generate a unique 6-character alphanumeric access code
 const generateUniqueAccessCode = async () => {
@@ -50,12 +51,21 @@ exports.updateQuiz = async (req, res) => {
     const quiz = await Quiz.findById(req.params.quizId);
 
     if (quiz) {
-      quiz.title = title || quiz.title;
-      quiz.duration = duration || quiz.duration;
-      quiz.status = status || quiz.status;
-      quiz.category = category || quiz.category; // Add category to update logic
+      if (title !== undefined) quiz.title = title;
+      if (duration !== undefined) quiz.duration = duration;
+      if (status !== undefined) quiz.status = status;
+      if (category !== undefined) quiz.category = category;
 
       const updatedQuiz = await quiz.save();
+
+      // Invalidate the cache for this quiz
+      try {
+        await redisClient.del(`quiz:${quiz.accessCode}`);
+        console.log(`Cache invalidated for quiz accessCode: ${quiz.accessCode}`);
+      } catch (error) {
+        console.error("Redis cache invalidation failed:", error);
+      }
+
       res.json(updatedQuiz);
     } else {
       res.status(404).json({ message: 'Quiz not found' });

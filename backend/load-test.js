@@ -6,8 +6,8 @@ const QUIZ_ACCESS_CODE = 'SN76KQ';
 
 export const options = {
   stages: [
-    { duration: '30s', target: 50 },  // Ramp up to 50 users over 30 seconds
-    { duration: '1m', target: 100 },  // Stay at 100 users for 1 minute
+    { duration: '1m', target: 100 },  // Ramp up to 50 users over 30 seconds
+    { duration: '2m', target: 200 },  // Stay at 100 users for 1 minute
     { duration: '30s', target: 0 },   // Ramp down to 0 users over 30 seconds
   ],
   thresholds: {
