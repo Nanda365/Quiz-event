@@ -29,14 +29,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      // Clear stored user data to prevent re-authentication with invalid token
-      localStorage.removeItem('pinnacle_user');
-      
-      // Only redirect if not on the login page
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
+    //
+    if (error.response && error.response.status === 401 && window.location.pathname !== '/login') {
+      // Dispatch a custom event that the app can listen for to trigger a global logout.
+      window.dispatchEvent(new Event('auth-error'));
     }
     return Promise.reject(error);
   }

@@ -1,10 +1,12 @@
 import { useState, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { User, AuthState } from "@/types";
 import * as authService from '../services/authService'; // Import authService
 
 const STORAGE_KEY = "pinnacle_user";
 
 export const useAuth = () => {
+  const navigate = useNavigate();
   const [authState, setAuthState] = useState<AuthState>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -75,8 +77,9 @@ export const useAuth = () => {
     } finally {
       localStorage.removeItem(STORAGE_KEY);
       setAuthState({ user: null, isAuthenticated: false, isLoading: false, token: null, isAuthResolved: true });
+      navigate('/login', { replace: true });
     }
-  }, []);
+  }, [navigate]);
 
   return { ...authState, login, register, logout, token: authState.token };
 };

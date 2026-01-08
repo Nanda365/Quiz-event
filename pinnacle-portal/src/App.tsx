@@ -28,6 +28,18 @@ const AppContent = () => {
   const location = useLocation();
   const showFooter = !['/login', '/register', '/forgot-password'].includes(location.pathname);
 
+  useEffect(() => {
+    const handleAuthError = () => {
+      logout();
+    };
+
+    window.addEventListener('auth-error', handleAuthError);
+
+    return () => {
+      window.removeEventListener('auth-error', handleAuthError);
+    };
+  }, [logout]);
+
   const headerUser = useMemo(() => {
     return user ? { name: user.name, role: user.role } : undefined;
   }, [user]);
