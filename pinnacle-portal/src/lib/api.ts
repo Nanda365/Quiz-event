@@ -30,6 +30,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
+      // Clear stored user data to prevent re-authentication with invalid token
+      localStorage.removeItem('pinnacle_user');
+      
       // Only redirect if not on the login page
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
