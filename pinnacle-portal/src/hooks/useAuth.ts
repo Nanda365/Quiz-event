@@ -22,13 +22,13 @@ export const useAuth = () => {
 
   // Effect to set isLoading to false and isAuthResolved to true after initial check
   useEffect(() => {
-    if (authState.isLoading && !authState.isAuthenticated && !authState.user) {
-      setAuthState(prev => ({ ...prev, isLoading: false, isAuthResolved: true }));
-    } else if (!authState.isLoading && (authState.isAuthenticated || authState.user)) {
-      // If already authenticated and not loading, ensure isAuthResolved is true
+    // This effect ensures isAuthResolved becomes true once the initial authentication check is complete.
+    // It should only run if isAuthResolved is still false (meaning initial check is not yet marked complete)
+    // and isLoading has settled to false (meaning the synchronous part of the check is done).
+    if (!authState.isAuthResolved && !authState.isLoading) {
       setAuthState(prev => ({ ...prev, isAuthResolved: true }));
     }
-  }, [authState.isLoading, authState.isAuthenticated, authState.user]);
+  }, [authState.isLoading, authState.isAuthResolved]);
 
 
 
