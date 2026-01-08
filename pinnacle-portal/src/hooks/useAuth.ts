@@ -56,7 +56,8 @@ export const useAuth = () => {
       setAuthState({ user: registeredUser, isAuthenticated: true, isLoading: false, token });
       return { success: true };
     } catch (err: any) {
-      return { success: false, error: err.message || "Registration failed" };
+      setAuthState(prev => ({ ...prev, isLoading: false })); // Ensure isLoading is reset on error
+      return { success: false, error: err.response?.data?.message || err.message || err.error || "Registration failed" };
     }
   }, []);
 

@@ -19,6 +19,13 @@ exports.register = async (req, res) => {
       console.log('User saved successfully to DB:', user);
     } catch (saveError) {
       console.error('Error saving user to database:', saveError);
+      if (saveError.name === 'ValidationError') {
+        const errors = {};
+        for (const field in saveError.errors) {
+          errors[field] = saveError.errors[field].message;
+        }
+        return res.status(400).json({ message: 'Validation failed', errors });
+      }
       return res.status(500).json({ message: 'Database save error', error: saveError.message });
     }
     

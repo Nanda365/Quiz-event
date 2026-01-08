@@ -57,6 +57,12 @@ export const Register = ({ onRegister, isLoading }: RegisterProps) => {
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    setError(""); // Clear general error on input change
+    setFieldErrors(prev => { // Clear specific field error on input change
+      const newFieldErrors = { ...prev };
+      delete newFieldErrors[field];
+      return newFieldErrors;
+    });
   };
 
   const handleSubmit = async (e: FormEvent) => {
