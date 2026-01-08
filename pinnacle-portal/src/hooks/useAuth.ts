@@ -17,7 +17,7 @@ export const useAuth = () => {
         console.error("Failed to parse user from localStorage", e);
       }
     }
-    return { user: null, isAuthenticated: false, isLoading: true, token: null, isAuthResolved: false };
+    return { user: null, isAuthenticated: false, isLoading: false, token: null, isAuthResolved: true };
   });
 
   // Effect to set isLoading to false and isAuthResolved to true after initial check
@@ -34,7 +34,7 @@ export const useAuth = () => {
       setAuthState({ user: loggedInUser, isAuthenticated: true, isLoading: false, token, isAuthResolved: true });
       return { success: true };
     } catch (err: any) {
-      setAuthState(prev => ({ ...prev, isLoading: false }));
+      setAuthState(prev => ({ ...prev, isLoading: false, isAuthResolved: true }));
       return { success: false, error: err.message || "Login failed" };
     }
   }, []);
@@ -56,7 +56,7 @@ export const useAuth = () => {
       setAuthState({ user: registeredUser, isAuthenticated: true, isLoading: false, token, isAuthResolved: true });
       return { success: true };
     } catch (err: any) {
-      setAuthState(prev => ({ ...prev, isLoading: false })); // Ensure isLoading is reset on error
+      setAuthState(prev => ({ ...prev, isLoading: false, isAuthResolved: true })); // Ensure isLoading is reset on error
       return { success: false, error: err.response?.data?.message || err.message || err.error || "Registration failed" };
     }
   }, []);
