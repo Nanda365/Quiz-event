@@ -5,7 +5,7 @@ import * as authService from '../services/authService'; // Import authService
 
 const STORAGE_KEY = "pinnacle_user";
 
-export const useAuth = () => {
+export const useProvideAuth = () => {
   const navigate = useNavigate();
   const [authState, setAuthState] = useState<AuthState>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);

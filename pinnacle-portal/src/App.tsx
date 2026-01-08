@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Home } from "@/pages/Home";
 import { Login } from "@/pages/Login";
 import { Register } from "@/pages/Register";
@@ -107,7 +107,7 @@ const AppContent = () => {
           <Route 
             path="/admin/dashboard"
             element={
-              <ProtectedRoute user={user} adminOnly>
+              <ProtectedRoute adminOnly>
                 <AdminDashboard />
               </ProtectedRoute>
             }
@@ -115,7 +115,7 @@ const AppContent = () => {
           <Route 
             path="/admin/quizzes/create"
             element={
-              <ProtectedRoute user={user} adminOnly>
+              <ProtectedRoute adminOnly>
                 <AdminCreateQuiz />
               </ProtectedRoute>
             }
@@ -123,7 +123,7 @@ const AppContent = () => {
           <Route 
             path="/admin/quizzes/edit/:quizId"
             element={
-              <ProtectedRoute user={user} adminOnly>
+              <ProtectedRoute adminOnly>
                 <AdminEditQuiz />
               </ProtectedRoute>
             }
@@ -131,7 +131,7 @@ const AppContent = () => {
           <Route // New route for managing questions
             path="/admin/quizzes/:quizId/questions"
             element={
-              <ProtectedRoute user={user} adminOnly>
+              <ProtectedRoute adminOnly>
                 <ManageQuestions />
               </ProtectedRoute>
             }
@@ -139,7 +139,7 @@ const AppContent = () => {
           <Route // New route for viewing quiz results
             path="/admin/quizzes/:quizId/results"
             element={
-              <ProtectedRoute user={user} adminOnly>
+              <ProtectedRoute adminOnly>
                 <QuizResults />
               </ProtectedRoute>
             }
@@ -156,14 +156,18 @@ const AppContent = () => {
   );
 };
 
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

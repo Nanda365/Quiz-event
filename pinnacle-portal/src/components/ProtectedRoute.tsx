@@ -1,19 +1,22 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { User } from '../types';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext'; // Corrected import path
+import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
-  user: User | null;
   adminOnly?: boolean;
   children: JSX.Element;
 }
 
-const ProtectedRoute = ({ user, adminOnly, children }: ProtectedRouteProps) => {
-  const { isLoading } = useAuth(); // Get isLoading from useAuth
+const ProtectedRoute = ({ adminOnly, children }: ProtectedRouteProps) => {
+  const { user, isLoading, isAuthResolved } = useAuth(); // Get user and loading state from context
 
-  if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center">Loading authentication...</div>; // Or a spinner
+  if (!isAuthResolved || isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="mr-2 h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   if (!user) {
