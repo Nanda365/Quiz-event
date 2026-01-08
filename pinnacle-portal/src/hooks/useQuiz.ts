@@ -59,7 +59,11 @@ export const useQuiz = (quizId: string) => { // Accept quizId as a parameter
       });
 
     } catch (error: any) {
-      setErrorFetchingQuestions(error.response?.data?.message || "Failed to load quiz questions. Please try again.");
+      const message =
+        error.response && error.response.data && error.response.data.message
+          ? error.response.data.message
+          : "Failed to load quiz questions. Please try again.";
+      setErrorFetchingQuestions(message);
     } finally {
       setIsLoadingQuestions(false);
     }
@@ -156,7 +160,7 @@ export const useQuiz = (quizId: string) => { // Accept quizId as a parameter
       }
     } catch (error) {
       console.error("Failed to submit quiz:", error);
-      // Optionally, show an error to the user
+      toast.error("Failed to submit quiz. Please try again.");
     }
   }, [quizId, quizState.answers]);
 

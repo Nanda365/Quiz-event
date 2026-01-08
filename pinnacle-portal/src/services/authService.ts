@@ -6,7 +6,11 @@ export const register = async (userData: Omit<User, 'id'>) => {
     const response = await api.post('/auth/register', userData);
     return response.data;
   } catch (error) {
-    throw error.response.data;
+    if (error.response && error.response.data) {
+      throw error.response.data;
+    } else {
+      throw new Error("Registration failed");
+    }
   }
 };
 
@@ -15,7 +19,11 @@ export const login = async (credentials: Omit<User, 'id' | 'name'>) => {
     const response = await api.post('/auth/login', credentials);
     return response.data;
   } catch (error) {
-    throw error.response.data;
+    if (error.response && error.response.data) {
+      throw error.response.data;
+    } else {
+      throw new Error("Login failed");
+    }
   }
 };
 

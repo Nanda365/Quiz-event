@@ -24,10 +24,13 @@ export const submitQuiz = async (quizId: string, answers: Record<string, string>
       questionId,
       answer,
     }));
-    const response = await api.post('/quiz/submit', { quizId, answers: formattedAnswers });
     return response.data;
   } catch (error) {
-    throw error.response.data;
+    if (error.response && error.response.data) {
+      throw error.response.data;
+    } else {
+      throw new Error("Failed to submit quiz");
+    }
   }
 };
 
