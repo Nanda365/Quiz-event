@@ -28,9 +28,6 @@ export const submitQuiz = async (quizId: string, answers: Record<string, string>
   } catch (error) {
     if (error.response && error.response.data) {
       throw error.response.data;
-    } else {
-      throw new Error("Failed to submit quiz");
-    }
   }
 };
 
