@@ -19,6 +19,7 @@ export const Quiz = ({ user }: QuizProps) => {
   const navigate = useNavigate();
   const { quizId } = useParams<{ quizId: string }>(); // Get quizId from URL
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [hasNavigated, setHasNavigated] = useState<boolean>(false);
   const {
     quizState,
     isStarted,
@@ -43,10 +44,11 @@ export const Quiz = ({ user }: QuizProps) => {
   } = useQuiz(quizId || ""); // Pass quizId to useQuiz
 
   useEffect(() => {
-    if (!user) {
+    if (!user && !hasNavigated) {
       navigate("/login");
+      setHasNavigated(true);
     }
-  }, [user, navigate]);
+  }, [user, navigate, hasNavigated]);
 
   useEffect(() => {
     // Hide the main header when on the quiz page
