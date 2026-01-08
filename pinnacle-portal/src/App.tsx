@@ -40,7 +40,9 @@ const AppContent = () => {
           <Route 
             path="/login" 
             element={
-              isAuthenticated ? (
+              isLoading ? (
+                <div className="flex min-h-screen items-center justify-center">Loading authentication...</div>
+              ) : isAuthenticated ? (
                 <Navigate to="/dashboard" replace />
               ) : (
                 <Login onLogin={login} isLoading={isLoading} />
@@ -50,7 +52,9 @@ const AppContent = () => {
           <Route 
             path="/register" 
             element={
-              isAuthenticated ? (
+              isLoading ? (
+                <div className="flex min-h-screen items-center justify-center">Loading authentication...</div>
+              ) : isAuthenticated ? (
                 <Navigate to="/dashboard" replace />
               ) : (
                 <Register onRegister={register} isLoading={isLoading} />

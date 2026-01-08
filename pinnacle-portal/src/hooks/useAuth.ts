@@ -11,19 +11,16 @@ export const useAuth = () => {
       try {
         const { user, token } = JSON.parse(stored);
         if (user && token) {
-          return { user, isAuthenticated: true, isLoading: false, token };
+          return { user, isAuthenticated: true, isLoading: false, token }; // Set isLoading to false here
         }
       } catch (e) {
         console.error("Failed to parse user from localStorage", e);
       }
     }
-    return { user: null, isAuthenticated: false, isLoading: false, token: null };
+    return { user: null, isAuthenticated: false, isLoading: true, token: null }; // Default isLoading to true
   });
 
-  // Effect to handle loading state and initial auth check
-  useEffect(() => {
-    setAuthState(prev => ({ ...prev, isLoading: false }));
-  }, []);
+
 
   const login = useCallback(async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setAuthState(prev => ({ ...prev, isLoading: true }));
