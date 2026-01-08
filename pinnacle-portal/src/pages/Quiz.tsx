@@ -9,6 +9,7 @@ import { User } from "@/types";
 import { ChevronLeft, ChevronRight, Send, RotateCcw, Trophy, Menu, Loader2, AlertTriangle, Info } from "lucide-react"; // Import new icons
 import { QuizSidebar } from "@/components/QuizSidebar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { FullscreenExitDialog } from "@/components/FullscreenExitDialog";
 
 interface QuizProps {
   user: User | null;
@@ -35,7 +36,10 @@ export const Quiz = ({ user }: QuizProps) => {
     calculateScore,
     resetQuiz,
     markForLater,
-    quizDuration // Access quizDuration
+    quizDuration, // Access quizDuration
+    isExitDialogOpen,
+    chancesLeft,
+    closeExitDialog,
   } = useQuiz(quizId || ""); // Pass quizId to useQuiz
 
   useEffect(() => {
@@ -243,6 +247,12 @@ export const Quiz = ({ user }: QuizProps) => {
           )}
         </div>
       </footer>
+
+      <FullscreenExitDialog
+        open={isExitDialogOpen}
+        onConfirm={closeExitDialog}
+        chancesLeft={chancesLeft}
+      />
     </>
   );
 };

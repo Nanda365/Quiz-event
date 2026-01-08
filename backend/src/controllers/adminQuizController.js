@@ -91,6 +91,15 @@ exports.deleteQuiz = async (req, res) => {
       
       await Question.deleteMany({ quiz: req.params.quizId });
       await quiz.deleteOne();
+
+      // Invalidate the cache for this quiz
+      try {
+        await redisClient.del(`quiz:${quiz.accessCode}`);
+        console.log(`Cache invalidated for quiz accessCode: ${quiz.accessCode}`);
+      } catch (error) {
+        console.error("Redis cache invalidation failed:", error);
+      }
+      
       res.json({ message: 'Quiz removed' });
     } else {
       res.status(404).json({ message: 'Quiz not found' });
@@ -198,6 +207,14 @@ exports.addQuestionToQuiz = async (req, res) => {
     
     await recalculateQuizTotalMarks(quizId); // Recalculate total marks for the quiz
 
+    // Invalidate the cache for this quiz
+    try {
+      await redisClient.del(`quiz:${quiz.accessCode}`);
+      console.log(`Cache invalidated for quiz accessCode: ${quiz.accessCode}`);
+    } catch (error) {
+      console.error("Redis cache invalidation failed:", error);
+    }
+
     res.status(201).json(createdQuestion);
   } catch (error) {
     console.error("Error adding question to quiz:", error); // Log full error to console
@@ -230,6 +247,15 @@ exports.updateQuestionInQuiz = async (req, res) => {
 
     const updatedQuestion = await question.save();
     await recalculateQuizTotalMarks(quizId); // Recalculate total marks for the quiz
+
+    // Invalidate the cache for this quiz
+    try {
+      await redisClient.del(`quiz:${quiz.accessCode}`);
+      console.log(`Cache invalidated for quiz accessCode: ${quiz.accessCode}`);
+    } catch (error) {
+      console.error("Redis cache invalidation failed:", error);
+    }
+    
     res.json(updatedQuestion);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
@@ -262,6 +288,14 @@ exports.deleteQuestionFromQuiz = async (req, res) => {
     await quiz.save();
     
     await recalculateQuizTotalMarks(quizId); // Recalculate total marks for the quiz
+
+    // Invalidate the cache for this quiz
+    try {
+      await redisClient.del(`quiz:${quiz.accessCode}`);
+      console.log(`Cache invalidated for quiz accessCode: ${quiz.accessCode}`);
+    } catch (error) {
+      console.error("Redis cache invalidation failed:", error);
+    }
 
     res.json({ message: 'Question removed from quiz' });
   } catch (error) {

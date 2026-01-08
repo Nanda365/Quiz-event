@@ -2,9 +2,13 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { QuizState, Question } from "@/types";
 import api from "@/lib/api"; // Import api for fetching
 import { submitQuiz as submitQuizService, getExistingResult } from "@/services/quizService";
+import { toast } from "sonner";
 
 export const useQuiz = (quizId: string) => { // Accept quizId as a parameter
   const [quizDuration, setQuizDuration] = useState(0); // State to store fetched quiz duration
+  const [fullscreenExitCount, setFullscreenExitCount] = useState(0);
+  const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
+  const [chancesLeft, setChancesLeft] = useState(3);
   const [quizState, setQuizState] = useState<QuizState>({
     currentQuestion: 0,
     answers: {},
@@ -96,6 +100,11 @@ export const useQuiz = (quizId: string) => { // Accept quizId as a parameter
       timeRemaining: quizDuration * 60,
       isSubmitted: false
     }));
+
+    // Request fullscreen
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen();
+    }
   }, [quizDuration]);
 
   const selectAnswer = useCallback((questionId: string, answer: string) => {
@@ -141,6 +150,10 @@ export const useQuiz = (quizId: string) => { // Accept quizId as a parameter
     try {
       await submitQuizService(quizId, quizState.answers);
       setQuizState(prev => ({ ...prev, isSubmitted: true }));
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
     } catch (error) {
       console.error("Failed to submit quiz:", error);
       // Optionally, show an error to the user
@@ -173,6 +186,7 @@ export const useQuiz = (quizId: string) => { // Accept quizId as a parameter
       timerRef.current = setInterval(() => {
         setQuizState(prev => {
           if (prev.timeRemaining <= 1) {
+            submitQuiz();
             return { ...prev, timeRemaining: 0, isSubmitted: true };
           }
           return { ...prev, timeRemaining: prev.timeRemaining - 1 };
@@ -185,7 +199,54 @@ export const useQuiz = (quizId: string) => { // Accept quizId as a parameter
         clearInterval(timerRef.current);
       }
     };
-  }, [isStarted, quizState.isSubmitted]);
+  }, [isStarted, quizState.isSubmitted, submitQuiz]);
+
+  const reEnterFullscreen = () => {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen();
+    }
+  };
+
+  const handleExit = useCallback((exitMethod: "fullscreen" | "tab") => {
+    setFullscreenExitCount(prevCount => {
+      const newCount = prevCount + 1;
+      if (newCount >= 3) {
+        toast.error(`You have exited fullscreen or switched tabs too many times. Your quiz will be submitted automatically.`);
+        submitQuiz();
+      } else {
+        setChancesLeft(3 - newCount);
+        setIsExitDialogOpen(true);
+      }
+      return newCount;
+    });
+  }, [submitQuiz]);
+
+  const closeExitDialog = () => {
+    setIsExitDialogOpen(false);
+    reEnterFullscreen();
+  };
+  
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && isStarted) {
+        handleExit("tab");
+      }
+    };
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && isStarted) {
+        handleExit("fullscreen");
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, [isStarted, handleExit]);
 
   return {
     quizState,
@@ -204,6 +265,9 @@ export const useQuiz = (quizId: string) => { // Accept quizId as a parameter
     calculateScore,
     resetQuiz,
     markForLater,
-    quizDuration // Export quizDuration
+    quizDuration, // Export quizDuration
+    isExitDialogOpen,
+    chancesLeft,
+    closeExitDialog
   };
 };
