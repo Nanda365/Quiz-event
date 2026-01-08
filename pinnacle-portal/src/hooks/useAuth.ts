@@ -17,8 +17,14 @@ export const useAuth = () => {
         console.error("Failed to parse user from localStorage", e);
       }
     }
-    return { user: null, isAuthenticated: false, isLoading: false, token: null, isAuthResolved: true };
+    return { user: null, isAuthenticated: false, isLoading: true, token: null, isAuthResolved: false };
   });
+
+  useEffect(() => {
+    // This effect runs once after the initial render to signal that the initial auth state determination is complete.
+    // It transitions from the initial loading state to a resolved state.
+    setAuthState(prev => ({ ...prev, isLoading: false, isAuthResolved: true }));
+  }, []);
 
   // Effect to set isLoading to false and isAuthResolved to true after initial check
 
