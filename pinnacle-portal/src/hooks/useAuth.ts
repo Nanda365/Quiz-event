@@ -11,21 +11,24 @@ export const useAuth = () => {
       try {
         const { user, token } = JSON.parse(stored);
         if (user && token) {
-          return { user, isAuthenticated: true, isLoading: false, token }; // Set isLoading to false here
+          return { user, isAuthenticated: true, isLoading: false, token, isAuthResolved: true };
         }
       } catch (e) {
         console.error("Failed to parse user from localStorage", e);
       }
     }
-    return { user: null, isAuthenticated: false, isLoading: true, token: null };
+    return { user: null, isAuthenticated: false, isLoading: true, token: null, isAuthResolved: false };
   });
 
-  // Effect to set isLoading to false after initial check, if no user was found
+  // Effect to set isLoading to false and isAuthResolved to true after initial check
   useEffect(() => {
     if (authState.isLoading && !authState.isAuthenticated && !authState.user) {
-      setAuthState(prev => ({ ...prev, isLoading: false }));
+      setAuthState(prev => ({ ...prev, isLoading: false, isAuthResolved: true }));
+    } else if (!authState.isLoading && (authState.isAuthenticated || authState.user)) {
+      // If already authenticated and not loading, ensure isAuthResolved is true
+      setAuthState(prev => ({ ...prev, isAuthResolved: true }));
     }
-  }, []);
+  }, [authState.isLoading, authState.isAuthenticated, authState.user]);
 
 
 

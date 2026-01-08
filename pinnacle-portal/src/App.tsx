@@ -22,9 +22,18 @@ import ProtectedRoute from "./components/ProtectedRoute";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { user, isAuthenticated, isLoading, login, register, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, login, register, logout, isAuthResolved } = useAuth();
   const location = useLocation();
   const showFooter = !['/login', '/register', '/forgot-password'].includes(location.pathname);
+
+  if (!isAuthResolved) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="mr-2 h-8 w-8 animate-spin text-primary" />
+        <p className="ml-3 text-lg text-text-secondary">Loading application...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
