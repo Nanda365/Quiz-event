@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -27,6 +28,10 @@ const AppContent = () => {
   const location = useLocation();
   const showFooter = !['/login', '/register', '/forgot-password'].includes(location.pathname);
 
+  const headerUser = useMemo(() => {
+    return user ? { name: user.name, role: user.role } : undefined;
+  }, [user]);
+
   if (!isAuthResolved) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -38,7 +43,7 @@ const AppContent = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <Header isAuthenticated={isAuthenticated} user={user ? { name: user.name, role: user.role } : undefined} onLogout={logout} />
+      <Header isAuthenticated={isAuthenticated} user={headerUser} onLogout={logout} />
       <main className="flex-grow px-4 pt-16 pb-8">
         <Routes>
           <Route 
