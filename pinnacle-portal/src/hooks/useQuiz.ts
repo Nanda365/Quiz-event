@@ -148,6 +148,8 @@ export const useQuiz = (quizId: string) => { // Accept quizId as a parameter
   }, []);
 
   const submitQuiz = useCallback(async () => {
+    if (quizState.isSubmitted) return;
+
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
@@ -162,7 +164,7 @@ export const useQuiz = (quizId: string) => { // Accept quizId as a parameter
       console.error("Failed to submit quiz:", error);
       toast.error("Failed to submit quiz. Please try again.");
     }
-  }, [quizId, quizState.answers]);
+  }, [quizId, quizState.answers, quizState.isSubmitted]);
 
   const calculateScore = useCallback(() => {
     let correct = 0;
@@ -189,7 +191,7 @@ export const useQuiz = (quizId: string) => { // Accept quizId as a parameter
     if (isStarted && !quizState.isSubmitted && quizState.timeRemaining > 0) {
       timerRef.current = setInterval(() => {
         setQuizState(prev => {
-          if (prev.timeRemaining <= 1) {
+          if (prev.timeRemaining <= 1 && !prev.isSubmitted) {
             submitQuiz();
             return { ...prev, timeRemaining: 0, isSubmitted: true };
           }
