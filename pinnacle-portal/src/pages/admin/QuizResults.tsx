@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '../../components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { useAuth } from '../../hooks/useAuth'; // Import useAuth
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 import { toast } from '../../components/ui/use-toast'; // Import toast
 import {
   AlertDialog,

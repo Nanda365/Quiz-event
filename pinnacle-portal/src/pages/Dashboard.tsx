@@ -1,15 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Header } from "@/components/Header";
 import { QuizStartDialog } from "@/components/QuizStartDialog";
-import { User } from "@/types";
-import { CheckCircle, Clock, AlertCircle, Play, Trophy, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
-
-interface DashboardProps {
-  user: User | null;
-  onLogout: () => void;
-}
+import { useAuth } from "@/contexts/AuthContext"; // Import useAuth from context
+import { CheckCircle, AlertCircle, Play, Trophy } from "lucide-react";
+import { useState } from "react";
 
 const rules = [
   "Each question has 4 options with only one correct answer.",
@@ -20,18 +14,10 @@ const rules = [
   "Your score will be displayed immediately after submission."
 ];
 
-
-export const Dashboard = ({ user, onLogout }: DashboardProps) => {
+export const Dashboard = () => {
+  const { user } = useAuth(); // Get user from context
   const navigate = useNavigate();
   const [showQuizDialog, setShowQuizDialog] = useState(false);
-  const [hasNavigated, setHasNavigated] = useState(false);
-  
-  useEffect(() => {
-    if (!user && !hasNavigated) {
-      navigate("/login");
-      setHasNavigated(true);
-    }
-  }, [user, navigate, hasNavigated]);
 
   const handleStartQuiz = (quizId: string, quizType: string) => {
     console.log("Starting quiz:", quizId, quizType);
@@ -40,6 +26,7 @@ export const Dashboard = ({ user, onLogout }: DashboardProps) => {
   };
 
   if (!user) {
+    // This can be a loading spinner or null, as ProtectedRoute handles the redirect
     return null;
   }
 

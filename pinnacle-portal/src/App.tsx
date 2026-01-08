@@ -94,11 +94,19 @@ const AppContent = () => {
           />
           <Route 
             path="/dashboard" 
-            element={<Dashboard user={user} onLogout={logout} />} 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
           />
           <Route 
             path="/quiz/:quizId" 
-            element={<Quiz user={user} />} 
+            element={
+              <ProtectedRoute>
+                <Quiz />
+              </ProtectedRoute>
+            } 
           />
           <Route 
             path="/admin/quizzes"
@@ -156,18 +164,16 @@ const AppContent = () => {
   );
 };
 
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AuthProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
           <AppContent />
-        </BrowserRouter>
-      </AuthProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );

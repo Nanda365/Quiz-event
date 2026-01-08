@@ -5,21 +5,17 @@ import { QuizTimer } from "@/components/QuizTimer";
 import { QuestionCard } from "@/components/QuestionCard";
 import { QuizProgress } from "@/components/QuizProgress";
 import { useQuiz } from "@/hooks/useQuiz";
-import { User } from "@/types";
-import { ChevronLeft, ChevronRight, Send, RotateCcw, Trophy, Menu, Loader2, AlertTriangle, Info } from "lucide-react"; // Import new icons
+import { useAuth } from "@/contexts/AuthContext"; // Import useAuth from context
+import { ChevronLeft, ChevronRight, Send, Trophy, Menu, Loader2, AlertTriangle, Info } from "lucide-react"; // Import new icons
 import { QuizSidebar } from "@/components/QuizSidebar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { FullscreenExitDialog } from "@/components/FullscreenExitDialog";
 
-interface QuizProps {
-  user: User | null;
-}
-
-export const Quiz = ({ user }: QuizProps) => {
+export const Quiz = () => {
+  const { user } = useAuth(); // Get user from context
   const navigate = useNavigate();
   const { quizId } = useParams<{ quizId: string }>(); // Get quizId from URL
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [hasNavigated, setHasNavigated] = useState<boolean>(false);
   const {
     quizState,
     isStarted,
@@ -42,13 +38,6 @@ export const Quiz = ({ user }: QuizProps) => {
     chancesLeft,
     closeExitDialog,
   } = useQuiz(quizId || ""); // Pass quizId to useQuiz
-
-  useEffect(() => {
-    if (!user && !hasNavigated) {
-      navigate("/login");
-      setHasNavigated(true);
-    }
-  }, [user, navigate, hasNavigated]);
 
   useEffect(() => {
     // Hide the main header when on the quiz page

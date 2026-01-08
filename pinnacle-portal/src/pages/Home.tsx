@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { BrainCircuit, Bot, Presentation, Code, Palette, Gamepad2, Trophy } from "lucide-react";
 
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 
 const events = [
   {
