@@ -22,13 +22,12 @@ export const useAuth = () => {
 
   // Effect to set isLoading to false and isAuthResolved to true after initial check
   useEffect(() => {
-    // This effect ensures isAuthResolved becomes true once the initial authentication check is complete.
-    // It should only run if isAuthResolved is still false (meaning initial check is not yet marked complete)
-    // and isLoading has settled to false (meaning the synchronous part of the check is done).
-    if (!authState.isAuthResolved && !authState.isLoading) {
-      setAuthState(prev => ({ ...prev, isAuthResolved: true }));
+    // This effect runs once after the initial render to ensure isAuthResolved is true
+    // and isLoading is false, especially for unauthenticated users.
+    if (!authState.isAuthResolved) {
+      setAuthState(prev => ({ ...prev, isLoading: false, isAuthResolved: true }));
     }
-  }, [authState.isLoading, authState.isAuthResolved]);
+  }, []); // Empty dependency array means it runs only once on mount
 
 
 
