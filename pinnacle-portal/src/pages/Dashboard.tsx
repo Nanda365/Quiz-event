@@ -24,12 +24,14 @@ const rules = [
 export const Dashboard = ({ user, onLogout }: DashboardProps) => {
   const navigate = useNavigate();
   const [showQuizDialog, setShowQuizDialog] = useState(false);
+  const [hasNavigated, setHasNavigated] = useState(false);
   
   useEffect(() => {
-    if (!user) {
+    if (!user && !hasNavigated) {
       navigate("/login");
+      setHasNavigated(true);
     }
-  }, [user, navigate]);
+  }, [user, navigate, hasNavigated]);
 
   const handleStartQuiz = (quizId: string, quizType: string) => {
     console.log("Starting quiz:", quizId, quizType);
