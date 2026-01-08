@@ -30,7 +30,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     //
-    if (error.response && error.response.status === 401 && window.location.pathname !== '/login') {
+    if (error.response && error.response.status === 401) {
       // Dispatch a custom event that the app can listen for to trigger a global logout.
       window.dispatchEvent(new Event('auth-error'));
     }
