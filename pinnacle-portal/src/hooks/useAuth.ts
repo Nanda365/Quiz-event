@@ -21,13 +21,7 @@ export const useAuth = () => {
   });
 
   // Effect to set isLoading to false and isAuthResolved to true after initial check
-  useEffect(() => {
-    // This effect runs once after the initial render to ensure isAuthResolved is true
-    // and isLoading is false, especially for unauthenticated users.
-    if (!authState.isAuthResolved) {
-      setAuthState(prev => ({ ...prev, isLoading: false, isAuthResolved: true }));
-    }
-  }, []); // Empty dependency array means it runs only once on mount
+
 
 
 
@@ -37,7 +31,7 @@ export const useAuth = () => {
     try {
       const { token, user: loggedInUser } = await authService.login({ email, password });
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ token, user: loggedInUser }));
-      setAuthState({ user: loggedInUser, isAuthenticated: true, isLoading: false, token });
+      setAuthState({ user: loggedInUser, isAuthenticated: true, isLoading: false, token, isAuthResolved: true });
       return { success: true };
     } catch (err: any) {
       setAuthState(prev => ({ ...prev, isLoading: false }));
@@ -59,7 +53,7 @@ export const useAuth = () => {
     try {
       const { token, user: registeredUser } = await authService.register({ name, email, college, state, mobile, password, interestedCategories });
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ token, user: registeredUser }));
-      setAuthState({ user: registeredUser, isAuthenticated: true, isLoading: false, token });
+      setAuthState({ user: registeredUser, isAuthenticated: true, isLoading: false, token, isAuthResolved: true });
       return { success: true };
     } catch (err: any) {
       setAuthState(prev => ({ ...prev, isLoading: false })); // Ensure isLoading is reset on error
@@ -74,7 +68,7 @@ export const useAuth = () => {
       console.error('Logout failed:', error);
     } finally {
       localStorage.removeItem(STORAGE_KEY);
-      setAuthState({ user: null, isAuthenticated: false, isLoading: false, token: null });
+      setAuthState({ user: null, isAuthenticated: false, isLoading: false, token: null, isAuthResolved: true });
     }
   }, []);
 
