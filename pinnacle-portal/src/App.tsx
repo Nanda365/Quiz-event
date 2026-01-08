@@ -18,6 +18,7 @@ import AdminEditQuiz from "./pages/admin/EditQuiz";
 import ManageQuestions from "./pages/admin/ManageQuestions"; // Import ManageQuestions
 import QuizResults from "./pages/admin/QuizResults"; // Import QuizResults
 import ProtectedRoute from "./components/ProtectedRoute";
+import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
 
