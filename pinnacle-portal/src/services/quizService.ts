@@ -24,9 +24,9 @@ export const submitQuiz = async (quizId: string, answers: Record<string, string>
       questionId,
       answer,
     }));
+    const response = await api.post('/quiz/submit', { quizId, answers: formattedAnswers });
     return response.data;
   } catch (error) {
-    if (error.response && error.response.data) {
       throw error.response.data;
   }
 };
