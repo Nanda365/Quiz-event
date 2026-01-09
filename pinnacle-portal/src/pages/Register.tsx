@@ -1,3 +1,4 @@
+import { toast } from "@/components/ui/use-toast";
 import { useState, FormEvent, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -95,6 +96,11 @@ export const Register = ({ onRegister, isLoading }: RegisterProps) => {
       navigate("/dashboard");
     } else {
       setError(result.error || "Registration failed");
+      toast({
+        title: "Registration Failed",
+        description: result.error || "Please check your details and try again.",
+        variant: "destructive",
+      });
     }
   };
 

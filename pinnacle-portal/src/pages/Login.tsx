@@ -1,3 +1,4 @@
+import { toast } from "@/components/ui/use-toast";
 import { useState, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,11 @@ export const Login = ({ onLogin, isLoading }: LoginProps) => {
       
     } else {
       setError(result.error || "Login failed");
+      toast({
+        title: "Login Failed",
+        description: result.error || "Please check your credentials.",
+        variant: "destructive",
+      });
     }
   };
 

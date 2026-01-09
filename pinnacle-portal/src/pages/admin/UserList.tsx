@@ -119,7 +119,7 @@ const UserList = () => {
   return (
     <>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">User Management</h2>
+        {/* <h2 className="text-2xl font-bold">User Management</h2> */}
         <div className="flex items-center space-x-2">
           <Label htmlFor="category-filter">Filter by Category:</Label>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
@@ -137,30 +137,13 @@ const UserList = () => {
           </Select>
         </div>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>
-              <Checkbox
-                checked={isAllSelected}
-                onCheckedChange={handleSelectAll}
-                aria-label="Select all"
-              />
-            </TableHead>
-            <TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>College</TableHead><TableHead>State</TableHead><TableHead>Mobile</TableHead><TableHead>Role</TableHead><TableHead>Interested Categories</TableHead><TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+      <div className="rounded-lg border">
+        {/* Mobile View: Card-based */}
+        <div className="grid gap-4 md:hidden p-4">
           {users.map((user) => (
-            <TableRow key={user._id}>
-              <TableCell>
-                <Checkbox
-                  checked={selectedUserIds.includes(user._id)}
-                  onCheckedChange={(checked) => handleSelectUser(user._id, checked as boolean)}
-                  aria-label={`Select ${user.name}`}
-                />
-              </TableCell>
-              <TableCell>{user.name}</TableCell><TableCell>{user.email}</TableCell><TableCell>{user.college}</TableCell><TableCell>{user.state}</TableCell><TableCell>{user.mobile}</TableCell><TableCell>{user.role}</TableCell><TableCell>{user.interestedCategories ? user.interestedCategories.join(', ') : 'N/A'}</TableCell><TableCell>
+            <div key={user._id} className="flex flex-col space-y-2 rounded-lg border p-4">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold">{user.name}</span>
                 <div className="flex space-x-2">
                   <Button variant="outline" size="icon" onClick={() => handleUpdateUserClick(user)}>
                     <Edit className="h-4 w-4" />
@@ -169,11 +152,68 @@ const UserList = () => {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              </TableCell>
-            </TableRow>
+              </div>
+              <div className="text-sm text-gray-500">{user.email}</div>
+              <div className="text-sm">Role: {user.role}</div>
+              <div className="text-sm">College: {user.college}</div>
+              <div className="text-sm">Mobile: {user.mobile}</div>
+            </div>
           ))}
-        </TableBody>
-      </Table>
+        </div>
+
+        {/* Desktop View: Table-based */}
+        <Table className="hidden md:table">
+          <TableHeader>
+            <TableRow>
+              <TableHead>
+                <Checkbox
+                  checked={isAllSelected}
+                  onCheckedChange={handleSelectAll}
+                  aria-label="Select all"
+                />
+              </TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>College</TableHead>
+              <TableHead>State</TableHead>
+              <TableHead>Mobile</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Interested Categories</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow key={user._id}>
+                <TableCell>
+                  <Checkbox
+                    checked={selectedUserIds.includes(user._id)}
+                    onCheckedChange={(checked) => handleSelectUser(user._id, checked as boolean)}
+                    aria-label={`Select ${user.name}`}
+                  />
+                </TableCell>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.college}</TableCell>
+                <TableCell>{user.state}</TableCell>
+                <TableCell>{user.mobile}</TableCell>
+                <TableCell>{user.role}</TableCell>
+                <TableCell>{user.interestedCategories ? user.interestedCategories.join(', ') : 'N/A'}</TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="icon" onClick={() => handleUpdateUserClick(user)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button variant="destructive" size="icon" onClick={() => handleDeleteUser(user._id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
       <Pagination className="mt-4">
         <PaginationContent>
           <PaginationItem>
