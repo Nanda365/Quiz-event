@@ -47,7 +47,7 @@ export const Login = ({ onLogin, isLoading }: LoginProps) => {
 
     const result = await onLogin(email, password);
     if (result.success) {
-      navigate("/dashboard");
+      
     } else {
       setError(result.error || "Login failed");
     }
