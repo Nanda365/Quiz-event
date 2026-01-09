@@ -69,16 +69,16 @@ export const useProvideAuth = () => {
     }
   }, []);
 
-  const logout = useCallback(async () => { // Make it async
-    try {
-      await authService.logout(); // Call the backend logout endpoint
-    } catch (error) {
-      console.error('Logout failed:', error);
-    } finally {
-      localStorage.removeItem(STORAGE_KEY);
-      setAuthState({ user: null, isAuthenticated: false, isLoading: false, token: null, isAuthResolved: true });
-      navigate('/login', { replace: true });
-    }
+  const logout = useCallback(() => {
+    // Perform client-side logout immediately
+    localStorage.removeItem(STORAGE_KEY);
+    setAuthState({ user: null, isAuthenticated: false, isLoading: false, token: null, isAuthResolved: true });
+    navigate('/login', { replace: true });
+
+    // Call the backend logout endpoint in the background
+    authService.logout().catch(error => {
+      console.error('Logout failed on server:', error);
+    });
   }, [navigate]);
 
   return { ...authState, login, register, logout, token: authState.token };
