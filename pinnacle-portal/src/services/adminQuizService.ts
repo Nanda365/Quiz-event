@@ -46,6 +46,11 @@ const adminQuizService = {
   deleteResult: (resultId: string) => {
     return api.delete(`/admin/quizzes/results/${resultId}`);
   },
+
+  // New function to fetch a specific user's result for a quiz
+  getQuizResultForUser: (quizId: string, userId: string) => {
+    return api.get(`${API_BASE_PATH}/${quizId}/users/${userId}/result`);
+  },
 };
 
 export default adminQuizService;

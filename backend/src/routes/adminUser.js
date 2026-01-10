@@ -4,6 +4,7 @@ const {
   getAllUsers,
   updateUser,
   deleteUser,
+  sendEmail,
 } = require('../controllers/adminUserController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
 
@@ -12,6 +13,8 @@ router.use(protect, authorize('admin'));
 
 router.route('/')
   .get(getAllUsers);
+
+router.post('/email', sendEmail);
 
 router.route('/:userId')
   .put(updateUser)

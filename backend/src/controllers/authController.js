@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+const sendEmail = require('../utils/mailer');
 
 exports.register = async (req, res) => {
   try {
@@ -14,8 +15,8 @@ exports.register = async (req, res) => {
 
     const user = new User({ name, email, password, college, state, mobile, interestedCategories });
 
-    try { // Opening try block for user.save()
-      await user.save(); // Attempt to save the user
+    try {
+      await user.save();
       console.log('User saved successfully to DB:', user);
     } catch (saveError) {
       console.error('Error saving user to database:', saveError);
@@ -89,16 +90,80 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.forgotPassword = async (req, res) => {
+exports.sendResetCode = async (req, res) => {
+  console.log('Inside sendResetCode function');
   try {
-    const { email, name, newPassword } = req.body;
-    const user = await User.findOne({ email, name });
+    const { email } = req.body;
+    console.log('Received email for reset:', email); // New log
+    const user = await User.findOne({ email });
+    console.log('User found in DB:', user); // New log
 
     if (!user) {
+      console.log('User not found for email:', email); // New log
       return res.status(404).json({ message: 'User not found' });
     }
 
+    const resetCode = crypto.randomBytes(3).toString('hex'); // 6-digit hex code
+    user.passwordResetToken = resetCode;
+    user.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    console.log('User object before saving reset token:', user); // New log
+    await user.save();
+    console.log('User object after saving reset token:', user); // New log
+
+    try {
+      const message = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="color: #333; text-align: center;">Pinnacle Portal Password Reset</h2>
+          <p style="font-size: 16px; color: #555;">You requested a password reset. Please use the following code to reset your password. The code is valid for 10 minutes.</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <p style="font-size: 18px; color: #555;">Your password reset code is:</p>
+            <div style="background-color: #f2f2f2; border-radius: 5px; padding: 15px 25px; display: inline-block;">
+              <strong style="font-size: 24px; color: #d9534f; letter-spacing: 2px;">${resetCode}</strong>
+            </div>
+          </div>
+          <p style="font-size: 14px; color: #888; text-align: center;">If you did not request a password reset, please ignore this email.</p>
+        </div>
+      `;
+
+      await sendEmail({
+        email: user.email,
+        subject: 'Your password reset code (valid for 10 min)',
+        message: message,
+      });
+
+      res.status(200).json({
+        status: 'success',
+        message: 'Token sent to email!',
+      });
+    } catch (err) {
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      return res.status(500).json({ message: 'There was an error sending the email. Try again later!' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email, code, newPassword } = req.body;
+    const user = await User.findOne({
+      email,
+      passwordResetToken: code,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired reset code' });
+    }
+
     user.password = newPassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
     await user.save();
 
     res.json({ message: 'Password updated successfully' });

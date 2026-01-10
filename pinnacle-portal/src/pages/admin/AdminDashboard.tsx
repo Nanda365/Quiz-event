@@ -105,13 +105,11 @@ const QuizListSection = () => {
                 <PaginationItem>
                     <PaginationPrevious onClick={() => setPage(p => Math.max(1, p - 1))} className={page === 1 ? 'pointer-events-none opacity-50' : ''} />
                 </PaginationItem>
-                {[...Array(pages).keys()].map((p) => (
-                    <PaginationItem key={p + 1}>
-                        <PaginationLink onClick={() => setPage(p + 1)} isActive={page === p + 1}>
-                            {p + 1}
-                        </PaginationLink>
-                    </PaginationItem>
-                ))}
+                <PaginationItem>
+                  <span className="px-4 py-2 text-sm font-medium">
+                    Page {page} of {pages}
+                  </span>
+                </PaginationItem>
                 <PaginationItem>
                     <PaginationNext onClick={() => setPage(p => Math.min(pages, p + 1))} className={page === pages ? 'pointer-events-none opacity-50' : ''} />
                 </PaginationItem>

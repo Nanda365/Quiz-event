@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const sendEmail = require('../utils/mailer');
 
 // @desc    Get all users (paginated)
 // @route   GET /api/admin/users
@@ -83,5 +84,43 @@ exports.deleteUser = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
+  }
+};
+
+// @desc    Send email to users
+// @route   POST /api/admin/users/email
+// @access  Private/Admin
+exports.sendEmail = async (req, res) => {
+  try {
+    const { userIds, subject, message } = req.body;
+
+    if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+      return res.status(400).json({ message: 'User IDs must be a non-empty array.' });
+    }
+    if (!subject) {
+      return res.status(400).json({ message: 'Subject is required.' });
+    }
+    if (!message) {
+      return res.status(400).json({ message: 'Message is required.' });
+    }
+
+    const users = await User.find({ '_id': { $in: userIds } });
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'No users found for the provided IDs.' });
+    }
+
+    for (const user of users) {
+      await sendEmail({
+        email: user.email,
+        subject: subject,
+        message: message,
+      });
+    }
+
+    res.status(200).json({ message: `Email sent to ${users.length} user(s).` });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

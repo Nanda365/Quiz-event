@@ -1,3 +1,8 @@
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
 require('dotenv').config();
 const express = require('express');
 const connectDB = require('./src/config/db');
@@ -55,7 +60,10 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', (req, res, next) => {
+  console.log(`[AUTH] Received ${req.method} request for ${req.originalUrl}`);
+  next();
+}, authRoutes);
 app.use('/api/quiz', quizRoutes);
 app.use('/api/admin/quizzes', adminQuizRoutes);
 app.use('/api/admin/users', adminUserRoutes);

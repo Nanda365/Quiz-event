@@ -8,11 +8,13 @@ const userSchema = new mongoose.Schema({
   college: { type: String, required: true },
   state: { type: String },
   mobile: { type: String, required: true },
-  interestedCategories: [{ type: String }, { default: [] }],
+  interestedCategories: { type: [String], default: [] },
   role: { type: String, enum: ['student', 'admin'], default: 'student' },
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 }, { timestamps: true });
 
-userSchema.pre('save', async function () {
+userSchema.pre('save', async function() {
   if (!this.isModified('password')) {
     return;
   }

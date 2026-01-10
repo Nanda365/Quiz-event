@@ -37,9 +37,18 @@ export const logout = async () => { // Make it async
   }
 };
 
-export const forgotPassword = async (email: string, name: string, newPassword: string) => {
+export const sendResetCode = async (email: string) => {
   try {
-    const response = await api.post('/auth/forgot-password', { email, name, newPassword });
+    const response = await api.post('/auth/send-reset-code', { email });
+    return { success: true, ...response.data };
+  } catch (error) {
+    return { success: false, error: error.response?.data?.message || 'An unexpected error occurred' };
+  }
+};
+
+export const forgotPassword = async (email: string, code: string, newPassword: string) => {
+  try {
+    const response = await api.post('/auth/forgot-password', { email, code, newPassword });
     return { success: true, ...response.data };
   } catch (error) {
     return { success: false, error: error.response?.data?.message || 'An unexpected error occurred' };

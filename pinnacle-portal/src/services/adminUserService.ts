@@ -18,6 +18,10 @@ const adminUserService = {
   deleteUser: (userId: string) => {
     return api.delete(`${API_BASE_PATH}/${userId}`);
   },
+
+  sendEmailToUsers: ({ userIds, subject, message }: { userIds: string[], subject: string, message: string }) => {
+    return api.post(`${API_BASE_PATH}/email`, { userIds, subject, message });
+  },
 };
 
 export default adminUserService;
