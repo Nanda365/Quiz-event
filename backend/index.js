@@ -61,7 +61,7 @@ app.use(limiter);
 
 // Routes
 app.use('/api/auth', (req, res, next) => {
-  console.log(`[AUTH] Received ${req.method} request for ${req.originalUrl}`);
+  // console.log(`[AUTH] Received ${req.method} request for ${req.originalUrl}`);
   next();
 }, authRoutes);
 app.use('/api/quiz', quizRoutes);
