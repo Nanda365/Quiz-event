@@ -40,7 +40,7 @@ connectDB().then(async () => {
 
 // Middleware
 app.use(cors({
-  origin: true,
+  origin: 'https://pinnacle-portal.onrender.com',
   credentials: true
 }));
 app.use(express.json());

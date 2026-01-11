@@ -12,7 +12,7 @@ const sendEmail = async (options) => {
     });
 
     const mailOptions = {
-        from: 'Novaskillhub <noreply@novaskillhub.com>',
+        from: '"Pinnacle Portal" <noreply@novaskillhub.com>',
         to: options.email,
         subject: options.subject,
         text: options.text || '',
